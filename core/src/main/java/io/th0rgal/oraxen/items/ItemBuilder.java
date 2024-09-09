@@ -631,12 +631,11 @@ public class ItemBuilder {
             for (final Map.Entry<PersistentDataSpace, Object> dataSpace : persistentDataMap.entrySet())
                 pdc.set(dataSpace.getKey().namespacedKey(), (PersistentDataType<?, Object>) dataSpace.getKey().dataType(), dataSpace.getValue());
 
-        if (VersionUtil.isPaperServer()) {
-            @Nullable List<Component> loreLines = lore != null? lore.stream().map(AdventureUtils.MINI_MESSAGE::deserialize).toList() : new ArrayList<>();
-            loreLines = loreLines.stream().map(c -> c.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)).toList();
-            itemMeta.lore(lore != null ? loreLines : null);
-        }
-        else itemMeta.setLore(lore);
+        if (VersionUtil.isPaperServer() && lore != null) {
+            itemMeta.lore(lore.stream().map(line ->
+                    AdventureUtils.MINI_MESSAGE.deserialize(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+            ).toList());
+        } else itemMeta.setLore(lore);
 
         itemStack.setItemMeta(itemMeta);
         finalItemStack = itemStack;
